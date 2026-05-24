@@ -13,6 +13,7 @@
     </table>
 
     <script type="module">
+        const dbUrl = 'https://media.githubusercontent.com/media/tmctmt/cloudflare-ns-pair-lookup/refs/heads/main/db.bin'
         const decoder = new TextDecoder('utf-8')
         
         async function decompress(compressed) {
@@ -23,7 +24,7 @@
         }
         
         async function fetchDescriptors() {
-            const resp = await fetch('db.bin', {headers: {'Range': 'bytes=0-5000000'}})
+            const resp = await fetch(dbUrl, {headers: {'Range': 'bytes=0-5000000'}})
             const buffer = await resp.arrayBuffer()
             const headerSizeCompressed = new DataView(buffer).getUint32(0, true)
             const headerBuffer = await decompress(buffer.slice(4, 4 + headerSizeCompressed))
@@ -45,7 +46,7 @@
         }
 
         async function fetchBlock(size, offset) {
-            const resp = await fetch('db.bin', {headers: {'Range': `bytes=${offset}-${offset+size-1}`}})
+            const resp = await fetch(dbUrl, {headers: {'Range': `bytes=${offset}-${offset+size-1}`}})
             const data = await decompress(await resp.arrayBuffer())
             const domains = decoder.decode(data).split('\n')
             return domains
