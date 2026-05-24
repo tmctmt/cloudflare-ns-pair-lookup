@@ -24,7 +24,7 @@
         }
         
         async function fetchDescriptors() {
-            const resp = await fetch(dbUrl, {headers: {'Range': 'bytes=0-5000000'}})
+            const resp = await fetch(dbUrl, {headers: {'Range': 'bytes=0-5000000'}, cache: 'force-cache'})
             const buffer = await resp.arrayBuffer()
             const headerSizeCompressed = new DataView(buffer).getUint32(0, true)
             const headerBuffer = await decompress(buffer.slice(4, 4 + headerSizeCompressed))
@@ -86,8 +86,9 @@
             }
         }
 
+        document.querySelector('form').style.display = 'none'
         const descriptors = await fetchDescriptors()
-
+        document.querySelector('form').style.display = 'block'
         document.querySelector('form').addEventListener('submit', (e) => { e.preventDefault(); search() })
         document.querySelector('#export').addEventListener('click', (e) => search(true))
 
