@@ -101,7 +101,7 @@
         }
 
         async function search(download, useThirdParty) {
-            let pair = document.querySelector('#query').value.trim().split(/[^a-zA-Z0-9-_.]/)
+            let pair = document.querySelector('#query').value.trim().split(/[^a-zA-Z0-9-_.]+/)
             if (pair.length === 1)
                 pair = await fetchNameservers(pair[0])
             pair = pair.map(x => x.toLowerCase().split('.')[0]).sort()
