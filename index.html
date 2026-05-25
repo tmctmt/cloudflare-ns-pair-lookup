@@ -30,7 +30,7 @@
 <body>
     <div class="container">
         <h1>Cloudflare Nameserver Pair Lookup</h1>
-        <p id="lastUpdated">Last updated:</p>
+        <p id="lastUpdated">Last updated: May 2026</p>
 
         <form>
             <input id="query" placeholder="ns pair or domain" required>
@@ -83,7 +83,7 @@
                 descriptors.set(key, [blockSize, blockOffset])
                 blockOffset += blockSize
             }
-            return [descriptors, resp.headers.get('last-modified')]
+            return descriptors
         }
 
         async function fetchBlock(size, offset) {
@@ -140,8 +140,7 @@
         }
 
         disableForm(true)
-        const [descriptors, lastUpdated] = await fetchDescriptors()
-        document.querySelector('#lastUpdated').innerText = `Last updated: ${lastUpdated}`
+        const descriptors = await fetchDescriptors()
         disableForm(false)
         document.querySelector('#query').focus()
         document.querySelector('form').addEventListener('submit', (e) => { e.preventDefault(); search() })
