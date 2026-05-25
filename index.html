@@ -35,6 +35,7 @@
         <form>
             <input id="query" placeholder="ns pair or domain" required>
             <input type="submit" value="Search">
+            <input id="alt" type="button" value="Alt Search">
             <input id="export" type="button" value="Export">
             <label for="hideSpam">Hide probable spam</label>
             <input type="checkbox" name="hideSpam" id="hideSpam">
@@ -99,7 +100,7 @@
             return nameservers
         }
 
-        async function search(download) {
+        async function search(download, useThirdParty) {
             let pair = document.querySelector('#query').value.trim().split(/[^a-zA-Z0-9-_.]/)
             if (pair.length === 1)
                 pair = await fetchNameservers(pair[0])
@@ -107,11 +108,13 @@
             const key = pair.join(',')
             if (!descriptors.get(key))
                 return alert('Website is not on Cloudflare or invalid pair')
+            if (useThirdParty)
+                return window.open(`https://search.dnslytics.com/search?q=ns:${pair[0]}.ns.cloudflare.com+and+ns:${pair[1]}.ns.cloudflare.com&d=domains`)
             const [blockSize, blockOffset] = descriptors.get(key)
             disableForm(true)
             let domains = await fetchBlock(blockSize, blockOffset)
             if (document.querySelector('#hideSpam').checked)
-                domains = domains.filter(domain => !domain.includes('xn--') && !domain.match(/\.(ru|top|pro|tech|info|xyz|click|online|workers\.dev|pages\.dev)$/))
+                domains = domains.filter(domain => !domain.includes('xn--') && !domain.match(/\.(ru|top|pro|tech|info|vip|site|xyz|click|online|workers\.dev|pages\.dev)$/))
             disableForm(false)
             if (download) {
                 const blob = new Blob([domains.join('\n')], { type: 'text/plain' })
@@ -143,6 +146,7 @@
         document.querySelector('#query').focus()
         document.querySelector('form').addEventListener('submit', (e) => { e.preventDefault(); search() })
         document.querySelector('#export').addEventListener('click', (e) => search(true))
+        document.querySelector('#alt').addEventListener('click', (e) => search(false, true))
 
     </script>
 </body>
