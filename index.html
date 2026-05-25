@@ -2,23 +2,59 @@
 <head>
     <title>Cloudflare Nameserver Pair Lookup</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        a {
+            color: black;
+            text-decoration: none;
+        }
+
+        /* w3schools ahh point and laugh */
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+            font-family: monospace;
+            font-size: 16px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+    </style>
 </head>
 <body>
-    <form>
-        <input id="query" placeholder="domain (example.org) or nameservers (john jane)" size="60" autofocus required>
-        <input type="submit" value="Search">
-        <input id="export" type="button" value="Export">
-    </form>
+    <div class="container">
+        <h1>Cloudflare Nameserver Pair Lookup</h1>
+        <p id="lastUpdated">Last updated:</p>
 
-    <table id="domains">
-        <tr>
-            <th>Domain</th>
-        </tr>
-    </table>
+        <form>
+            <input id="query" placeholder="ns pair or domain" required>
+            <input type="submit" value="Search">
+            <input id="export" type="button" value="Export">
+            <label for="hideSpam">Hide probable spam</label>
+            <input type="checkbox" name="hideSpam" id="hideSpam">
+        </form>
+
+        <table id="domains">
+            <tr>
+                <th>Domain</th>
+                <th>Actions</th>
+            </tr>
+        </table>
+    </div>
 
     <script type="module">
-        const dbUrl = 'https://media.githubusercontent.com/media/tmctmt/cloudflare-ns-pair-lookup/refs/heads/main/db.bin'
+        const dbUrl = location.hostname == 'localhost' ? 'db.bin' : 'https://media.githubusercontent.com/media/tmctmt/cloudflare-ns-pair-lookup/refs/heads/main/db.bin'
         const decoder = new TextDecoder('utf-8')
+
+        function disableForm(disabled) {
+            document.querySelectorAll('form, form input').forEach(el => el.disabled = disabled)
+        }
         
         async function decompress(compressed) {
             const decompressed = await new Response(
@@ -46,7 +82,7 @@
                 descriptors.set(key, [blockSize, blockOffset])
                 blockOffset += blockSize
             }
-            return descriptors
+            return [descriptors, resp.headers.get('last-modified')]
         }
 
         async function fetchBlock(size, offset) {
@@ -70,9 +106,13 @@
             pair = pair.map(x => x.toLowerCase().split('.')[0]).sort()
             const key = pair.join(',')
             if (!descriptors.get(key))
-                return alert('Invalid pair')
+                return alert('Website is not on Cloudflare or invalid pair')
             const [blockSize, blockOffset] = descriptors.get(key)
-            const domains = await fetchBlock(blockSize, blockOffset)
+            disableForm(true)
+            let domains = await fetchBlock(blockSize, blockOffset)
+            if (document.querySelector('#hideSpam').checked)
+                domains = domains.filter(domain => !domain.includes('xn--') && !domain.match(/\.(ru|top|pro|tech|info|xyz|click|online|workers\.dev|pages\.dev)$/))
+            disableForm(false)
             if (download) {
                 const blob = new Blob([domains.join('\n')], { type: 'text/plain' })
                 const link = document.createElement('a')
@@ -85,14 +125,22 @@
                 for (const domain of domains) {
                     const row = table.insertRow()
                     row.className = 'row'
-                    row.insertCell(0).innerHTML = `<a href="https://${domain}/">${domain}</a>`
+                    row.insertCell(0).textContent = domain
+                    row.insertCell(1).innerHTML = `
+                        <button title="Link" onclick="window.open('https://${domain}/', '_blank');return false">&#128279;</button>
+                        <button title="Archive" onclick="window.open('https://web.archive.org/web/*/${domain}/*', '_blank');return false">&#x1F3DB;&#xFE0F;</button>
+                        <button title="WHOIS" onclick="window.open('https://www.whoxy.com/${domain}', '_blank');return false">&#x1F310;</button>
+                        <button title="DNS" onclick="window.open('https://dnshistory.org/dns-records/${domain}', '_blank');return false">&#x1F5A7;</button>
+                    `
                 }
             }
         }
 
-        document.querySelector('form').style.display = 'none'
-        const descriptors = await fetchDescriptors()
-        document.querySelector('form').style.display = 'block'
+        disableForm(true)
+        const [descriptors, lastUpdated] = await fetchDescriptors()
+        document.querySelector('#lastUpdated').innerText = `Last updated: ${lastUpdated}`
+        disableForm(false)
+        document.querySelector('#query').focus()
         document.querySelector('form').addEventListener('submit', (e) => { e.preventDefault(); search() })
         document.querySelector('#export').addEventListener('click', (e) => search(true))
 
