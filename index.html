@@ -31,30 +31,22 @@
     <div class="container">
         <h1>Cloudflare Nameserver Pair Lookup</h1>
         <p id="lastUpdated">Last updated: May 2026</p>
-
         <form>
             <input id="query" placeholder="ns pair or domain" required>
             <select id="backend">
-                <option value="local">Local (historic)</option>
-                <option value="whoisxmlapi">WhoisXMLAPI (historic)</option>
-                <option value="dnslytics">DNSlytics (current)</option>
+                <option value="local">Local</option>
+                <option value="whoisxmlapi">WhoisXMLAPI</option>
+                <option value="dnslytics">DNSlytics</option>
             </select>
             <input type="submit" value="Search">
             <input id="export" type="button" value="Export">
+            <br/>
             <label for="hideSpam">Hide probable spam</label>
             <input type="checkbox" name="hideSpam" id="hideSpam">
         </form>
-
-        <p id="count"></p>
-
-        <table id="domains">
-            <tr>
-                <th>Domain</th>
-                <th>Actions</th>
-            </tr>
-        </table>
+        <span id="count"></span>
+        <table id="domains"></table>
     </div>
-
     <script type="module">
         const dbUrl = location.hostname == 'localhost' ? 'db.bin' : 'https://media.githubusercontent.com/media/tmctmt/cloudflare-ns-pair-lookup/refs/heads/main/db.bin'
         const decoder = new TextDecoder('utf-8')
@@ -172,10 +164,9 @@
                 link.click()
             } else {
                 const table = document.getElementById('domains')
-                table.querySelectorAll('.row').forEach(e => e.remove())
+                table.querySelectorAll('tr').forEach(e => e.remove())
                 for (const domain of domains) {
                     const row = table.insertRow()
-                    row.className = 'row'
                     row.insertCell().textContent = domain
                     row.insertCell().innerHTML = `
                         <a title="Link" href="https://${domain}/" target="_blank"><button>&#128279;</button></a>
