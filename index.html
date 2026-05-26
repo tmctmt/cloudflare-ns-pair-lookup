@@ -176,12 +176,12 @@
                 for (const domain of domains) {
                     const row = table.insertRow()
                     row.className = 'row'
-                    row.insertCell(0).textContent = domain
-                    row.insertCell(1).innerHTML = `
-                        <button title="Link" onclick="window.open('https://${domain}/', '_blank');return false">&#128279;</button>
-                        <button title="Archive" onclick="window.open('https://web.archive.org/web/*/${domain}/*', '_blank');return false">&#x1F3DB;&#xFE0F;</button>
-                        <button title="WHOIS" onclick="window.open('https://www.whoxy.com/${domain}', '_blank');return false">&#x1F310;</button>
-                        <button title="DNS" onclick="window.open('https://dnshistory.org/dns-records/${domain}', '_blank');return false">&#x1F5A7;</button>
+                    row.insertCell().textContent = domain
+                    row.insertCell().innerHTML = `
+                        <a title="Link" href="https://${domain}/" target="_blank"><button>&#128279;</button></a>
+                        <a title="Archive" href="https://web.archive.org/web/*/${domain}/*" target="_blank"><button>&#x1F3DB;&#xFE0F;</button></a>
+                        <a title="WHOIS" href="https://www.whoxy.com/${domain}" target="_blank"><button>&#x1F310;</button></a>
+                        <a title="DNS" href="https://dnshistory.org/dns-records/${domain}" target="_blank"><button>&#x1F5A7;</button></a>
                     `
                 }
             }
