@@ -154,7 +154,7 @@
                 disableForm(false)
             }
             if (document.querySelector('#hideSpam').checked)
-                domains = domains.filter(domain => !domain.includes('xn--') && !domain.match(/\.(ru|tk|gq|ml|cf|sbs|top|pro|tech|info|vip|site|xyz|click|online|cyou|biz|shop|workers\.dev|pages\.dev)$/))
+                domains = domains.filter(domain => !domain.includes('xn--') && !domain.match(/\.(ru|tk|gq|ml|cf|cc|sbs|top|pro|tech|info|vip|site|xyz|click|online|cyou|biz|shop|workers\.dev|pages\.dev)$/))
             document.querySelector('#count').textContent = `${domains.length} results`
             if (download) {
                 const blob = new Blob([domains.join('\n')], { type: 'text/plain' })
