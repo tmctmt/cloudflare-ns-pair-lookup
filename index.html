@@ -164,7 +164,7 @@ table {
 
 td,
 th {
-    padding: 12px;
+    padding: 0;
     border-bottom: 1px solid var(--border);
     text-align: left;
 }
@@ -175,15 +175,6 @@ tr:last-child td {
 
 tr:hover {
     background: #f6f8fa;
-}
-
-td:first-child {
-    width: 100%;
-    word-break: break-word;
-}
-
-td:last-child {
-    white-space: nowrap;
 }
 
 a {
@@ -206,6 +197,65 @@ button {
 
 button:hover {
     background: #f6f8fa;
+}
+
+/* Row hover-reveal action sections */
+.row-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.row-domain {
+    padding: 12px;
+    word-break: break-word;
+}
+
+.row-actions {
+    display: flex;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height .15s ease, opacity .12s ease;
+}
+
+tr:hover .row-actions {
+    max-height: 44px;
+    opacity: 1;
+}
+
+.row-actions a {
+    flex: 1 1 25%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    text-decoration: none;
+}
+
+.row-actions a:last-child {
+    border-right: none;
+}
+
+.row-actions a:hover {
+    background: #eef1f4;
+    text-decoration: none;
+}
+
+.row-actions button {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    padding: 8px 0;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.row-actions button:hover {
+    background: transparent;
 }
 
 ::-webkit-scrollbar {
@@ -396,12 +446,17 @@ button:hover {
                 table.querySelectorAll('tr').forEach(e => e.remove())
                 for (const domain of domains) {
                     const row = table.insertRow()
-                    row.insertCell().textContent = domain
-                    row.insertCell().innerHTML = `
-                        <a title="Link" href="https://${domain}/" target="_blank"><button>&#128279;</button></a>
-                        <a title="Archive" href="https://web.archive.org/web/*/${domain}/*" target="_blank"><button>&#x1F3DB;&#xFE0F;</button></a>
-                        <a title="WHOIS" href="https://www.whoxy.com/${domain}" target="_blank"><button>&#x1F310;</button></a>
-                        <a title="DNS" href="https://dnshistory.org/dns-records/${domain}" target="_blank"><button>&#x1F5A7;</button></a>
+                    const cell = row.insertCell()
+                    cell.innerHTML = `
+                        <div class="row-wrap">
+                            <span class="row-domain">${domain}</span>
+                            <div class="row-actions">
+                                <a title="Link" href="https://${domain}/" target="_blank"><button>&#128279;</button></a>
+                                <a title="Archive" href="https://web.archive.org/web/*/${domain}/*" target="_blank"><button>&#x1F3DB;&#xFE0F;</button></a>
+                                <a title="WHOIS" href="https://www.whoxy.com/${domain}" target="_blank"><button>&#x1F310;</button></a>
+                                <a title="DNS" href="https://dnshistory.org/dns-records/${domain}" target="_blank"><button>&#x1F5A7;</button></a>
+                            </div>
+                        </div>
                     `
                 }
             }
